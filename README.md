@@ -8,10 +8,11 @@ bash ig-monitor profilename
 ```
 
 # checking for changes
-to check archive.org for any changes, check the ig-changes.txt file.
+to check for any changes, check the ig-profilename.txt file.
 ```sh
-cat ig-changes.txt
+cat ig-profilename.txt
 ```
+a copy of the user's profile pic can also be found in the same directory. the format for the image name is `profilename-YYYYMMDDhhmmss`, where the right-hand portion is a timestamp.
 
 # future improvements
-may check to see if i can monitor multiple profiles instead of just one. also look into saving profile images or html to a file.
+may check to see if i can monitor multiple profiles instead of just one.
