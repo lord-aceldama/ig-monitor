@@ -1,5 +1,5 @@
 # ig-monitor
-A bash script that monitors a single instagram account for changes and submits it to archive.org if a change occurs.
+A bash script that monitors a single instagram account for changes.
 
 # usage
 replace `profilename` with the account name you wish to monitor. do not use `@profilename`
@@ -7,10 +7,10 @@ replace `profilename` with the account name you wish to monitor. do not use `@pr
 bash ig-monitor profilename
 ```
 
-# checking archive.org for changes
-to check archive.org for any changes, just use the following url, replacing `profilename` with the profile name you're monitoring.
+# checking for changes
+to check archive.org for any changes, check the ig-changes.txt file.
 ```sh
-https://web.archive.org/web/*/https://www.instagram.com/profilename/
+cat ig-changes.txt
 ```
 
 # future improvements
