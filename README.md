@@ -10,7 +10,7 @@ bash ig-monitor profilename
 # checking for changes
 to check for any changes, check the ig-profilename.txt file.
 ```sh
-cat ig-profilename.txt
+cat profilename.txt
 ```
 a copy of the user's profile pic can also be found in the same directory. the format for the image name is `profilename-YYYYMMDDhhmmss`, where the right-hand portion is a timestamp.
 
