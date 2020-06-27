@@ -1,10 +1,25 @@
 # ig-monitor
 A bash script that monitors a single instagram account for changes.
 
-# usage
-replace `profilename` with the account name you wish to monitor. do not use `@profilename`
+# install (git)
 ```sh
-bash ig-monitor profilename
+git clone https://github.com/lord-aceldama/ig-monitor.git
+cd ig-monitor
+chmod +x igmonitor.sh
+```
+
+# install (wget)
+```sh
+mkdir ig-monitor
+cd ig-monitor
+wget -O ig-monitor.sh "https://raw.githubusercontent.com/lord-aceldama/ig-monitor/master/ig-monitor.sh"
+chmod +x ig-monitor.sh
+```
+
+# usage
+replace `profilename` with the account name you wish to monitor. do not use `@profilename`.
+```sh
+./ig-monitor.sh profilename
 ```
 
 # checking for changes
