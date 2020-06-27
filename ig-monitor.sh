@@ -102,7 +102,7 @@ while true; do
             echo ""
         fi
     else
-        echo -ne "\runchanged, waiting... (last check: $( date %H%M%S ))"
+        echo -ne "\runchanged, waiting... (last check: $( date "%H%M%S" ))"
         sleep "$(( 60 * 5 ))"  #-- 5 mins
     fi
 
