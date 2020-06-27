@@ -48,7 +48,7 @@ while true; do
         focus_on_me=30
         last_hash="$hash"
         echo "changed: $( date )"
-        echo "$html" >> ig_changes.txt
+        echo "$html" >> ig-changes.txt
         echo "$( digest_json "$html" )"
     fi
 
