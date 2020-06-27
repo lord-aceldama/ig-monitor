@@ -1,33 +1,65 @@
 #!/bin/bash
 
 function get_deets() {
-    local html="$(wget -q -O - "https://www.instagram.com/$1" | grep -o -P 'sharedData = .*</script>' )"
-    echo "$html"
+    local _html
+    _html="$(wget -q -O - "https://www.instagram.com/$1" | grep -o -P 'sharedData = .*</script>' )"
+    echo "$_html"
 }
 
 function digest_json() {
-    #-- To Do
-    local html="$1"
-
-    #-- strip random strings
-    if echo -n "$html" | grep -q "nonce"; then
-        html="$( echo -n "$html" | grep -o -P '"viewer.*nonce"' )"
-    fi
-    if echo -n "$html" | grep -q '"has_next_page":true'; then
-        html="$( echo -n "$html" | grep -o -P '"viewer.*has_next_page":true' )"
-    fi
-
-    echo "$html"
+    # "biography":"
+    local _bio
+    _bio="$( echo -n "$1" | grep -o -P '"biography":".*?"' | grep -oP ':.*' | grep -oP '[^"]*"\K[^"]*' )"
+    
+    # "edge_followed_by":{"count":###}
+    local _followers
+    _followers="$( echo -n "$1" | grep -o -P '"edge_followed_by":.*?}' | grep -oP '\d*')"
+    
+    # "edge_follow":{"count":###}
+    local _following
+    _following="$( echo -n "$1" | grep -o -P '"edge_follow":.*?}' | grep -oP '\d*')"
+    
+    # "full_name":"
+    local _fullname
+    _fullname="$( echo -n "$1" | grep -o -P '"full_name":".*?"' | grep -oP ':.*' | grep -oP '[^"]*"\K[^"]*' )"
+    
+    # "highlight_reel_count":###
+    local _highlight_reel
+    _highlight_reel="$( echo -n "$1" | grep -o -P '"highlight_reel_count":\d*}' | grep -oP '\d*')"
+    
+    # "profile_pic_url_hd":"
+    local _profile_pic
+    _profile_pic="$( echo -n "$1" | grep -o -P '"profile_pic_url_hd":".*?"' | grep -oP ':.*' | grep -oP '[^"]*"\K[^"]*' )"
+    
+    # "edge_owner_to_timeline_media":{"count":582
+    local _posts
+    _posts="$( echo -n "$1" | grep -o -P '"edge_owner_to_timeline_media":.*?[,}]+' | grep -oP '\d*')"
+    
+    local str_hash
+    str_hash=$( echo -n "$_bio $_fullname $_profile_pic" | md5sum )
+    echo "posts:$_posts followers:$_followers following:$_following reel:$_highlight_reel md5str:$str_hash"
 }
 
 function get_hash() {
-    local html="$( digest_json "$1" )"
+    local _html
+    _html="$( digest_json "$1" )"
 
     #-- return MD5
-    echo -n "$html" | md5sum
+    echo -n "$_html" | md5sum
+}
+
+function download_profile_pic() {
+    #-- To Do
+    # "profile_pic_url_hd":"
+    local _profile_pic
+    _profile_pic="$( echo -n "$2" | grep -o -P '"profile_pic_url_hd":".*?"' | grep -oP ':.*' | grep -oP '[^"]*"\K[^"]*' )"
+    
+    wget -q -O "$( date +%Y%m%d%H%M%S )-$1.jpg" "$( echo -e "$_profile_pic")"
+
 }
 
 function archive_org {
+    #-- Does not work
     echo "submitting to archive.org..."
     wget -q -O - "https://web.archive.org/save/https://www.instagram.com/$profile/"
     echo done!
@@ -41,15 +73,24 @@ last_hash="" #"$( $get_hash "$html" )"
 focus_on_me=0
 
 #-- Monitor loop
+echo -n ""
 while true; do
     #-- Compare hashes
     hash="$( get_hash "$html" )"
     if [ "$hash" != "$last_hash" ]; then
         focus_on_me=30
         last_hash="$hash"
-        echo "changed: $( date )"
-        echo "$html" >> ig-changes.txt
-        echo "$( digest_json "$html" )"
+        echo ""
+        echo "profile $profile changed: $( date )"
+        digest_json "$html"
+
+        {
+            date
+            echo "$html"
+            echo ""
+        } >> "ig-$profile.txt"
+
+        download_profile_pic "$profile" "$html"
     fi
 
     #-- Flood delay
