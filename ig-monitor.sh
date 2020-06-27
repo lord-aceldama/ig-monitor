@@ -25,7 +25,7 @@ function digest_json() {
     
     # "highlight_reel_count":###
     local _highlight_reel
-    _highlight_reel="$( echo -n "$1" | grep -o -P '"highlight_reel_count":\d*}' | grep -oP '\d*')"
+    _highlight_reel="$( echo -n "$1" | grep -o -P '"highlight_reel_count":\d*[,}]+' | grep -oP '\d*')"
     
     # "profile_pic_url_hd":"
     local _profile_pic
@@ -36,7 +36,7 @@ function digest_json() {
     _posts="$( echo -n "$1" | grep -o -P '"edge_owner_to_timeline_media":.*?[,}]+' | grep -oP '\d*')"
     
     local str_hash
-    str_hash=$( echo -n "$_bio $_fullname $_profile_pic" | md5sum )
+    str_hash=$( echo -n "$_bio $_fullname $_profile_pic" | md5sum | awk '{ print $1 }' )
     echo "posts:$_posts followers:$_followers following:$_following reel:$_highlight_reel md5str:$str_hash"
 }
 
@@ -45,7 +45,7 @@ function get_hash() {
     _html="$( digest_json "$1" )"
 
     #-- return MD5
-    echo -n "$_html" | md5sum
+    echo -n "$_html" | md5sum | awk '{ print $1 }'
 }
 
 function download_profile_pic() {
@@ -54,7 +54,7 @@ function download_profile_pic() {
     local _profile_pic
     _profile_pic="$( echo -n "$2" | grep -o -P '"profile_pic_url_hd":".*?"' | grep -oP ':.*' | grep -oP '[^"]*"\K[^"]*' )"
     
-    wget -q -O "$( date +%Y%m%d%H%M%S )-$1.jpg" "$( echo -e "$_profile_pic")"
+    wget -q -O "$1-$( date +%Y%m%d%H%M%S ).jpg" "$( echo -e "$_profile_pic")"
 
 }
 
@@ -81,14 +81,14 @@ while true; do
         focus_on_me=30
         last_hash="$hash"
         echo ""
-        echo "profile $profile changed: $( date )"
+        echo "UPDATE: $profile's profile changed ($( date +%Y%m%d-%H%M%S ))"
         digest_json "$html"
 
         {
             date
             echo "$html"
             echo ""
-        } >> "ig-$profile.txt"
+        } >> "$profile.txt"
 
         download_profile_pic "$profile" "$html"
     fi
@@ -102,7 +102,7 @@ while true; do
             echo ""
         fi
     else
-        echo "unchanged, waiting..."
+        echo -ne "\runchanged, waiting... (last check: $( date %H%M%S ))"
         sleep "$(( 60 * 5 ))"  #-- 5 mins
     fi
 
